@@ -3,7 +3,7 @@ let publishedCache = [];
 
 function initSupabase() {
   if (!window.SUPABASE_URL || !window.SUPABASE_ANON_KEY || window.SUPABASE_URL.includes('YOUR_PROJECT_ID')) {
-    alert('config.sample.js에 Supabase URL과 anon key를 입력해야 합니다.');
+    alert('config.sample.js에 Supabase URL과 Publishable Key를 입력해야 합니다.');
     return false;
   }
   db = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
@@ -30,24 +30,25 @@ async function submitIdea() {
   const title = value('title');
   const content = value('content');
   if (!title || !content) {
-    setMessage('submitMsg', '제목과 내용은 필수입니다.', 'error');
+    setMessage('submitMsg', '아이디어명과 무엇이 문제인가? 항목은 필수입니다.', 'error');
     return;
   }
   const payload = {
     submitter_name: value('submitter_name'),
     employee_no: value('employee_no'),
     department: value('department'),
-    category: value('category') || '기타',
+    category: value('category') || 'LEVEL1',
     title,
     content,
-    expected_effect: value('expected_effect')
+    expected_effect: value('expected_effect'),
+    expected_appearance: value('expected_appearance')
   };
   const { error } = await db.from('raw_ideas').insert(payload);
   if (error) {
     setMessage('submitMsg', '저장 중 오류가 발생했습니다: ' + error.message, 'error');
     return;
   }
-  ['submitter_name','employee_no','department','title','content','expected_effect'].forEach(id => document.getElementById(id).value = '');
+  ['submitter_name','employee_no','department','title','content','expected_effect','expected_appearance'].forEach(id => document.getElementById(id).value = '');
   setMessage('submitMsg', '아이디어가 접수되었습니다. 관리자 익명화 후 게시됩니다.', 'success');
 }
 
@@ -55,7 +56,7 @@ async function loadBoard() {
   if (!db && !initSupabase()) return;
   const { data: ideas, error } = await db
     .from('published_ideas')
-    .select('id, anonymous_no, category, title, content, expected_effect, published_at, likes(id)')
+    .select('id, anonymous_no, category, title, content, expected_effect, expected_appearance, published_at, likes(id)')
     .eq('is_visible', true)
     .order('published_at', { ascending: false });
   if (error) {
@@ -86,8 +87,9 @@ function openDetail(id) {
   document.getElementById('detailBox').innerHTML = `
     <div class="meta"><span>${escapeHtml(idea.anonymous_no)}</span><span>${escapeHtml(idea.category)}</span></div>
     <h1>${escapeHtml(idea.title)}</h1>
-    <h3>아이디어 내용</h3><p>${escapeHtml(idea.content)}</p>
-    <h3>기대효과</h3><p>${escapeHtml(idea.expected_effect || '미입력')}</p>
+    <h3>무엇이 문제인가?</h3><p>${escapeHtml(idea.content)}</p>
+    <h3>해결 방안</h3><p>${escapeHtml(idea.expected_effect || '미입력')}</p>
+    <h3>아이디어가 구현되었을 때 예상되는 모습</h3><p>${escapeHtml(idea.expected_appearance || '미입력')}</p>
     <div class="likebox">
       <div class="likecount">♥ ${idea.like_count}</div>
       <label>사번 입력<input id="likeEmp" placeholder="중복 공감 방지용"></label>
