@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>아이디어 페스티벌</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">아이디어 페스티벌</div>
+  <nav>
+    <button onclick="showPage('home')">홈</button>
+    <button onclick="showPage('submit')">아이디어 접수</button>
+    <button onclick="showPage('board')">게시판</button>
+    <button onclick="showPage('ranking')">순위</button>
+    <button onclick="showPage('adminGuide')">관리자 안내</button>
+  </nav>
+</header>
+<main class="container">
+  <section id="home" class="page active">
+    <div class="hero">
+      <p class="badge">GitHub Pages + Supabase 버전</p>
+      <h1>우리의 작은 아이디어가 큰 변화를 만듭니다</h1>
+      <p>QR로 접속하여 아이디어를 접수하고, 익명 게시판에서 좋은 아이디어에 공감할 수 있습니다.</p>
+      <div class="actions">
+        <button class="primary" onclick="showPage('submit')">아이디어 접수하기</button>
+        <button onclick="showPage('board')">게시판 보기</button>
+      </div>
+    </div>
+    <div class="grid two">
+      <div class="card"><h2>운영 흐름</h2><ol><li>직원 아이디어 접수</li><li>Supabase 원본 테이블 저장</li><li>관리자 익명화 후 게시</li><li>직원 QR 게시판 확인</li><li>사번 입력 후 공감</li><li>공감 순위 확인</li></ol></div>
+      <div class="card"><h2>보안 원칙</h2><p>게시판에는 익명화된 데이터만 표시합니다. 원본 성명, 사번, 부서 정보는 게시판에서 읽지 않습니다.</p></div>
+    </div>
+  </section>
+
+  <section id="submit" class="page">
+    <div class="card narrow">
+      <h1>아이디어 접수</h1>
+      <p class="muted">입력한 원본 정보는 관리자 익명화 전용으로 사용됩니다.</p>
+      <label>성명<input id="submitter_name" placeholder="홍길동"></label>
+      <label>사번<input id="employee_no" placeholder="12345"></label>
+      <label>부서<input id="department" placeholder="생산기술팀"></label>
+      <label>분야<select id="category"><option>원가절감</option><option>품질개선</option><option>업무효율</option><option>안전</option><option>ESG</option><option>신제품/신사업</option><option>기타</option></select></label>
+      <label>아이디어 제목 *<input id="title" required></label>
+      <label>아이디어 내용 *<textarea id="content" rows="7" required></textarea></label>
+      <label>기대효과<textarea id="expected_effect" rows="4"></textarea></label>
+      <button class="primary" onclick="submitIdea()">제출</button>
+      <p id="submitMsg" class="message"></p>
+    </div>
+  </section>
+
+  <section id="board" class="page">
+    <h1>익명 아이디어 게시판</h1>
+    <div class="toolbar"><input id="search" oninput="renderBoard()" placeholder="검색어"><select id="filter" onchange="renderBoard()"><option value="">전체 분야</option><option>원가절감</option><option>품질개선</option><option>업무효율</option><option>안전</option><option>ESG</option><option>신제품/신사업</option><option>기타</option></select></div>
+    <div id="boardList" class="idea-list"></div>
+  </section>
+
+  <section id="detail" class="page"><div id="detailBox" class="card detail"></div></section>
+  <section id="ranking" class="page"><h1>공감 순위</h1><div id="rankList" class="card"></div></section>
+
+  <section id="adminGuide" class="page">
+    <div class="card">
+      <h1>관리자 운영 안내</h1>
+      <ol>
+        <li>Supabase Table Editor에서 <b>raw_ideas</b> 테이블의 접수 내용을 확인합니다.</li>
+        <li>제출자 정보를 제거하거나 문구를 수정해 익명 게시 내용을 만듭니다.</li>
+        <li><b>published_ideas</b> 테이블에 익명번호, 제목, 내용, 기대효과를 등록합니다.</li>
+        <li>등록 즉시 직원 게시판과 순위 화면에 반영됩니다.</li>
+      </ol>
+      <p class="muted">정식 운영 시에는 관리자 로그인 화면과 승인 버튼을 추가하는 것이 좋습니다.</p>
+    </div>
+  </section>
+</main>
+<footer>아이디어 페스티벌. GitHub Pages + Supabase 예제.</footer>
+<script src="config.sample.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
