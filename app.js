@@ -27,6 +27,32 @@ function setMessage(id, text, type='') {
 
 async function submitIdea() {
   if (!db && !initSupabase()) return;
+  
+  // ===== 접수 기간 설정 =====
+const START_DATE = new Date("2026-08-24 00:00:00");
+const END_DATE = new Date("2026-09-11 23:59:59");
+  
+const now = new Date();
+
+if (now < START_DATE) {
+  setMessage(
+    'submitMsg',
+    '아이디어 접수 기간이 아닙니다. (2026.08.24 시작)',
+    'error'
+  );
+  return;
+}
+
+if (now > END_DATE) {
+  setMessage(
+    'submitMsg',
+    '아이디어 접수가 종료되었습니다.',
+    'error'
+  );
+  return;
+}
+// ========================
+  
   const title = value('title');
   const content = value('content');
   if (!title || !content) {
