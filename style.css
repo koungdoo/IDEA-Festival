@@ -130,3 +130,57 @@
     font-size: 16px;
   }
 }
+
+.contact-card {
+  background: #ffffff;
+  border: 1px solid #d7e2f2;
+  border-radius: 20px;
+  padding: 24px;
+  margin: 22px 0;
+  box-shadow: 0 8px 20px rgba(30, 50, 90, .06);
+}
+
+.contact-card h2 {
+  font-size: 30px;
+  color: #153e90;
+  margin: 0 0 18px;
+}
+
+.contact-list {
+  display: grid;
+  gap: 12px;
+}
+
+.contact-row {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 14px;
+  align-items: start;
+  font-size: 22px;
+  line-height: 1.5;
+}
+
+.contact-row strong {
+  color: #111827;
+  font-weight: 900;
+}
+
+.contact-row span {
+  color: #111827;
+}
+
+@media (max-width: 780px) {
+  .contact-card {
+    padding: 18px;
+  }
+
+  .contact-card h2 {
+    font-size: 25px;
+  }
+
+  .contact-row {
+    grid-template-columns: 1fr;
+    gap: 2px;
+    font-size: 18px;
+  }
+}
