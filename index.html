@@ -27,6 +27,19 @@
         <button onclick="showPage('board')">게시판 보기</button>
       </div>
     </div>
+
+    <section class="period-card">
+      <h2>진행 기간</h2>
+      <ol class="period-list">
+        <li><span class="period-date">8/21~9/11</span><span class="period-desc">ALPSALPINE 기술에 대한 사전 홍보 영상 배포 및 상영</span></li>
+        <li class="active"><span class="period-date">8/24~9/11</span><span class="period-desc">아이디어 접수 및 열람(응원) <b>(3주간)</b></span></li>
+        <li><span class="period-date">9/말~10/초</span><span class="period-desc">우수 아이디어 선정 <span class="note">(모든 아이디어에 대해 피드백 예정)</span></span></li>
+        <li><span class="period-date">10/초~12/초</span><span class="period-desc">우수 아이디어의 PoC 제작 <span class="note">(관련 부서와 협의하여 PoC 제작)</span></span></li>
+        <li class="active"><span class="period-date">12월 중</span><span class="period-desc">품평회 <b>(전 사원 QR코드 투표 포함)</b> 및 사업 연계 아이템 선정</span></li>
+      </ol>
+      <p class="period-footnote">* 2027년 1월 초 시상 예정</p>
+    </section>
+
     <section class="guide-card">
       <div class="guide-title-row">
         <h2>아이디어 작성 요령</h2>
@@ -75,13 +88,7 @@
       <label>사번<input id="employee_no" placeholder="12345"></label>
       <label>부서<input id="department" placeholder="생산기술팀"></label>
       <label>아이디어명 *<input id="title" required></label>
-      <label>종류
-        <select id="category">
-          <option>LEVEL1</option>
-          <option>LEVEL2</option>
-          <option>LEVEL3</option>
-        </select>
-      </label>
+      <label>종류<select id="category"><option>LEVEL1</option><option>LEVEL2</option><option>LEVEL3</option></select></label>
       <label>무엇이 문제인가? *<textarea id="content" rows="7" required></textarea></label>
       <label>해결 방안<textarea id="expected_effect" rows="4"></textarea></label>
       <label>아이디어가 구현되었을 때 예상되는 모습<textarea id="expected_appearance" rows="4"></textarea></label>
@@ -92,32 +99,11 @@
 
   <section id="board" class="page">
     <h1>익명 아이디어 게시판</h1>
-    <div class="toolbar">
-      <input id="search" oninput="renderBoard()" placeholder="검색어">
-      <select id="filter" onchange="renderBoard()">
-        <option value="">전체 종류</option>
-        <option>LEVEL1</option>
-        <option>LEVEL2</option>
-        <option>LEVEL3</option>
-      </select>
-    </div>
+    <div class="toolbar"><input id="search" oninput="renderBoard()" placeholder="검색어"><select id="filter" onchange="renderBoard()"><option value="">전체 종류</option><option>LEVEL1</option><option>LEVEL2</option><option>LEVEL3</option></select></div>
     <div id="boardList" class="idea-list"></div>
   </section>
-
   <section id="detail" class="page"><div id="detailBox" class="card detail"></div></section>
   <section id="ranking" class="page"><h1>공감 순위</h1><div id="rankList" class="card"></div></section>
-
-  <section id="adminGuide" class="page">
-    <div class="card">
-      <h1>관리자 운영 안내</h1>
-      <ol>
-        <li>Supabase Table Editor에서 <b>raw_ideas</b> 테이블의 접수 내용을 확인합니다.</li>
-        <li>제출자 정보를 제거하거나 문구를 수정해 익명 게시 내용을 만듭니다.</li>
-        <li><b>published_ideas</b> 테이블에 익명번호, 제목, 내용, 해결 방안, 예상 모습을 등록합니다.</li>
-        <li>등록 즉시 직원 게시판과 순위 화면에 반영됩니다.</li>
-      </ol>
-    </div>
-  </section>
 </main>
 <footer>아이디어 페스티벌</footer>
 <script src="config.sample.js"></script>
