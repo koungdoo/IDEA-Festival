@@ -238,8 +238,24 @@ async function submitIdea() {
       if (el) el.value = "";
     });
 
-    const fileInput = document.getElementById("attachment_files");
-    if (fileInput) fileInput.value = "";
+    for(
+      let i = 1;
+      i <= 5;
+      i++
+    ){
+
+      const input =
+        document.getElementById(
+          `attachment_${i}`
+        );
+
+      if(input){
+
+        input.value = "";
+
+      }
+
+    }
 
     const selectedFileList = document.getElementById("selectedFileList");
     if (selectedFileList) selectedFileList.innerHTML = "";
