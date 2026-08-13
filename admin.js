@@ -135,7 +135,7 @@ async function copyFilesToPublished(files, anonymousNo) {
     const file = files[i];
     if (!file.path) continue;
     const ext = getFileExtension(file.name || file.path);
-    const safeName = makeSafeFileName(file.name || `file_${i + 1}.${ext}`);
+    const safeName = `file_${i + 1}.${ext}`;
     const targetPath = `published/${anonymousNo}/${String(i + 1).padStart(2, "0")}_${safeName}`;
     const { error } = await adminDb.storage.from(RAW_STORAGE_BUCKET).copy(file.path, targetPath, { destinationBucket: PUBLISHED_STORAGE_BUCKET });
     if (error) throw new Error(`${file.name || file.path} 복사 실패: ${error.message}`);
