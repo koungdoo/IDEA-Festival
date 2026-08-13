@@ -1,0 +1,25 @@
+
+/* LocalStorage 열람 표시 및 Hash 공감 UI */
+.view-new {
+  background: #fff3cd !important;
+  border-color: #ffe69c !important;
+  color: #8a5a00 !important;
+}
+
+.view-read {
+  background: #eef7ee !important;
+  border-color: #cfe8cf !important;
+  color: #176b3a !important;
+}
+
+.like-action-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.attachment-input-group {
+  display: grid;
+  gap: 6px;
+}

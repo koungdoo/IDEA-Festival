@@ -19,6 +19,11 @@ const ALLOWED_FILE_TYPES = [
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
 ];
 
+// LocalStorage keys
+const VIEWED_IDEAS_KEY = "ideaFestivalViewedIdeas";
+const USER_HASH_KEY = "ideaFestivalUserHash";
+const HASH_NAMESPACE = "ALPS_KOREA_IDEA_FESTIVAL_2026_V1";
+
 function initSupabase() {
   if (!window.SUPABASE_URL || !window.SUPABASE_ANON_KEY || window.SUPABASE_URL.includes("YOUR_PROJECT_ID")) {
     alert("config.sample.js에 Supabase URL과 Publishable Key를 입력해야 합니다.");
@@ -240,6 +245,90 @@ async function submitIdea() {
   }
 }
 
+// ---- User hash helper functions ----
+async function sha256Hex(text) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(text);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+function normalizeEmployeeNo(employeeNo) {
+  return String(employeeNo || "").trim();
+}
+
+async function hashEmployeeNo(employeeNo) {
+  const normalized = normalizeEmployeeNo(employeeNo);
+  if (!normalized) return "";
+  return await sha256Hex(`${HASH_NAMESPACE}:${normalized}`);
+}
+
+function getStoredUserHash() {
+  return localStorage.getItem(USER_HASH_KEY) || "";
+}
+
+function setStoredUserHash(userHash) {
+  if (userHash) {
+    localStorage.setItem(USER_HASH_KEY, userHash);
+  }
+}
+
+function clearStoredUserHash() {
+  localStorage.removeItem(USER_HASH_KEY);
+}
+
+async function getUserHashForLike(ideaId) {
+  const inputValue = value(`likeEmp-${ideaId}`) || value("likeEmp");
+
+  if (inputValue) {
+    const userHash = await hashEmployeeNo(inputValue);
+    setStoredUserHash(userHash);
+    return userHash;
+  }
+
+  return getStoredUserHash();
+}
+
+// ---- Viewed ideas helper functions ----
+function getViewedIdeaIds() {
+  try {
+    const raw = localStorage.getItem(VIEWED_IDEAS_KEY) || "[]";
+    const ids = JSON.parse(raw);
+    return Array.isArray(ids) ? ids.map((id) => Number(id)).filter((id) => !Number.isNaN(id)) : [];
+  } catch (err) {
+    return [];
+  }
+}
+
+function saveViewedIdeaIds(ids) {
+  const uniqueIds = Array.from(new Set((ids || []).map((id) => Number(id))));
+  localStorage.setItem(VIEWED_IDEAS_KEY, JSON.stringify(uniqueIds));
+}
+
+function isIdeaViewed(id) {
+  return getViewedIdeaIds().includes(Number(id));
+}
+
+function markIdeaViewed(id) {
+  const targetId = Number(id);
+  const viewed = getViewedIdeaIds();
+
+  if (!viewed.includes(targetId)) {
+    viewed.push(targetId);
+    saveViewedIdeaIds(viewed);
+  }
+}
+
+function updateViewBadge(id) {
+  const badge = document.getElementById(`view-badge-${id}`);
+  if (!badge) return;
+
+  badge.textContent = "✅ 읽음";
+  badge.classList.remove("view-new");
+  badge.classList.add("view-read");
+}
+
 async function loadLikeSummary() {
   if (!db && !initSupabase()) return;
 
@@ -326,13 +415,19 @@ function renderBoard() {
 function renderBoardSimpleCard(idea) {
   const fileCount = Array.isArray(idea.attachment_files) ? idea.attachment_files.length : 0;
   const publishedDate = idea.published_at ? new Date(idea.published_at).toLocaleDateString() : "게시일 미확인";
+  const viewed = isIdeaViewed(idea.id);
+  const viewLabel = viewed ? "✅ 읽음" : "🆕 NEW";
+  const viewClass = viewed ? "view-read" : "view-new";
+  const userHash = getStoredUserHash();
+  const likePlaceholder = userHash ? "사번 저장됨. 변경 시 새 사번 입력" : "최초 1회 사번 입력";
 
   return `
     <article class="board-simple-card" id="board-card-${idea.id}">
       <div class="board-simple-head">
         <div class="board-simple-summary">
-          <strong>✅ ${escapeHtml(idea.title || "제목 없음")}</strong>
+          <strong>${escapeHtml(idea.title || "제목 없음")}</strong>
           <div class="board-simple-meta">
+            <span id="view-badge-${idea.id}" class="${viewClass}">${viewLabel}</span>
             <span>${escapeHtml(idea.anonymous_no || "")}</span>
             <span>${escapeHtml(idea.category || "")}</span>
             <span>📎 ${fileCount}</span>
@@ -357,10 +452,14 @@ function renderBoardSimpleCard(idea) {
 
         <div class="likebox simple-likebox">
           <div class="likecount">♥ ${idea.like_count}</div>
+          <p class="muted small-note">사번은 브라우저에서 해시 처리된 값으로 저장됩니다. 원본 사번은 DB에 저장하지 않습니다.</p>
           <label>사번 입력
-            <input id="likeEmp-${idea.id}" placeholder="중복 공감 방지용">
+            <input id="likeEmp-${idea.id}" placeholder="${likePlaceholder}">
           </label>
-          <button class="primary" onclick="likeIdea(${idea.id})">공감하기</button>
+          <div class="like-action-row">
+            <button class="primary" onclick="likeIdea(${idea.id})">공감하기</button>
+            <button type="button" onclick="resetStoredUserHash(${idea.id})">사용자 변경</button>
+          </div>
           <p id="likeMsg-${idea.id}" class="message"></p>
         </div>
       </div>
@@ -371,7 +470,14 @@ function renderBoardSimpleCard(idea) {
 function toggleBoardDetail(id) {
   const box = document.getElementById(`board-detail-${id}`);
   if (!box) return;
+
+  const willOpen = box.classList.contains("hidden-detail");
   box.classList.toggle("hidden-detail");
+
+  if (willOpen) {
+    markIdeaViewed(id);
+    updateViewBadge(id);
+  }
 }
 
 function toggleAllBoardDetails() {
@@ -385,6 +491,9 @@ function toggleAllBoardDetails() {
       detail.classList.add("hidden-detail");
     } else {
       detail.classList.remove("hidden-detail");
+      const idText = detail.id.replace("board-detail-", "");
+      markIdeaViewed(idText);
+      updateViewBadge(idText);
     }
   });
 }
@@ -393,20 +502,42 @@ function openDetail(id) {
   toggleBoardDetail(id);
 }
 
+function resetStoredUserHash(id) {
+  clearStoredUserHash();
+
+  const input = document.getElementById(`likeEmp-${id}`);
+  if (input) {
+    input.value = "";
+    input.placeholder = "새 사번 입력";
+    input.focus();
+  }
+
+  const msgId = document.getElementById(`likeMsg-${id}`) ? `likeMsg-${id}` : "likeMsg";
+  setMessage(msgId, "저장된 사용자 정보를 초기화했습니다. 새 사번을 입력해 주세요.", "success");
+}
+
 async function likeIdea(id) {
   if (!db && !initSupabase()) return;
 
-  const employee_no = value(`likeEmp-${id}`) || value("likeEmp");
   const msgId = document.getElementById(`likeMsg-${id}`) ? `likeMsg-${id}` : "likeMsg";
+  const inputValue = value(`likeEmp-${id}`) || value("likeEmp");
+  const existingHash = getStoredUserHash();
 
-  if (!employee_no) {
-    setMessage(msgId, "사번을 입력해 주세요.", "error");
+  if (!inputValue && !existingHash) {
+    setMessage(msgId, "최초 공감 시 사번을 입력해 주세요. 사번은 해시 처리되어 저장됩니다.", "error");
+    return;
+  }
+
+  const userHash = await getUserHashForLike(id);
+
+  if (!userHash) {
+    setMessage(msgId, "사번 해시 처리 중 오류가 발생했습니다.", "error");
     return;
   }
 
   const { error } = await db.from("likes").insert({
     published_id: id,
-    employee_no
+    employee_no: userHash
   });
 
   if (error) {
@@ -418,7 +549,13 @@ async function likeIdea(id) {
     return;
   }
 
-  setMessage(msgId, "공감이 등록되었습니다.", "success");
+  const input = document.getElementById(`likeEmp-${id}`);
+  if (input) {
+    input.value = "";
+    input.placeholder = "사번 저장됨. 변경 시 새 사번 입력";
+  }
+
+  setMessage(msgId, "공감이 등록되었습니다. 다음 공감부터 사번 입력 없이 사용할 수 있습니다.", "success");
   await loadBoard();
 
   const detail = document.getElementById(`board-detail-${id}`);
