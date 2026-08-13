@@ -30,7 +30,7 @@ const SUBMISSION_START = new Date("2026-08-24T00:00:00+09:00");
 const SUBMISSION_END = new Date("2026-09-11T23:59:59+09:00");
 
 const LIKE_START = new Date("2026-08-24T00:00:00+09:00");
-const LIKE_END = new Date("2026-09-11T23:59:59+09:00");
+const LIKE_END = new Date("2026-09-18T23:59:59+09:00");
 
 const VIEWED_IDEAS_KEY = "ideaFestivalViewedIdeas";
 const USER_HASH_KEY = "ideaFestivalUserHash";
