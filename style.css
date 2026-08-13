@@ -7,6 +7,7 @@ nav { display: flex; gap: 8px; flex-wrap: wrap; }
 button { border: 0; border-radius: 12px; padding: 10px 14px; background: #e9eef8; color: #17345f; font-weight: 800; cursor: pointer; }
 button:disabled { opacity: .6; cursor: not-allowed; }
 .primary { background: #ffcc33; color: #172033; }
+.small-button { padding: 8px 12px; font-size: 13px; }
 .container { max-width: 1080px; margin: auto; padding: 24px; }
 .page { display: none; }
 .page.active { display: block; }
@@ -20,14 +21,12 @@ input, textarea, select { width: 100%; padding: 12px; border: 1px solid #cfd6e4;
 input[type="file"] { background: #ffffff; }
 .muted { color: #667085; }
 .toolbar { display: grid; grid-template-columns: 1fr 220px; gap: 10px; margin: 0 0 18px; }
-.idea-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
-.idea-card { background: #ffffff; border: 1px solid #e5e8ef; border-radius: 18px; padding: 18px; cursor: pointer; transition: box-shadow .15s ease, transform .15s ease; }
-.idea-card:hover { box-shadow: 0 8px 20px rgba(30, 50, 90, 0.08); transform: translateY(-2px); }
+.idea-list { display: block; }
 .meta { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
 .meta span { background: #eef4ff; color: #153e90; border-radius: 999px; padding: 5px 10px; font-size: 12px; font-weight: 900; }
-.bottom { display: flex; justify-content: space-between; color: #667085; gap: 10px; }
 .detail p { white-space: pre-line; line-height: 1.7; }
 .likebox { border-top: 1px solid #edf0f5; margin-top: 20px; padding-top: 18px; }
+.simple-likebox { background: #fff; border: 1px solid #e5e8ef; border-radius: 14px; padding: 14px; }
 .likecount { font-size: 28px; font-weight: 900; color: #e23b3b; }
 .rank-row { display: grid; grid-template-columns: 44px 1fr 80px; gap: 12px; border-bottom: 1px solid #edf0f5; padding: 14px 0; align-items: center; }
 .rank { background: #153e90; color: #ffffff; border-radius: 50%; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; font-weight: 900; }
@@ -77,5 +76,18 @@ footer { text-align: center; color: #8a94a6; padding: 28px; }
 .attachment-preview { width: 100%; max-height: 420px; object-fit: contain; border-radius: 12px; border: 1px solid #e5e8ef; background: #ffffff; margin-bottom: 8px; }
 .file-link { display: inline-block; margin-top: 6px; padding: 10px 14px; border-radius: 12px; background: #eef4ff; color: #153e90; font-weight: 900; text-decoration: none; word-break: break-all; }
 .file-link:hover { background: #dceaff; }
-@media (max-width: 780px) { .period-list li { grid-template-columns: 30px 1fr; font-size: 18px; } .period-date, .period-desc { grid-column: 2; } .guide-top-example, .guide-grid, .idea-list, .toolbar { grid-template-columns: 1fr; } .period-card h2, .guide-title-row h2, .evaluation-card h2, .contact-card h2, .overview-card h2 { font-size: 25px; } .evaluation-card, .contact-card { padding: 18px; } .evaluation-section h3 { font-size: 21px; } .evaluation-section li, .award-summary { font-size: 17px; } .contact-row { grid-template-columns: 1fr; gap: 2px; font-size: 18px; } .attachment-preview { max-height: 280px; } }
+.hidden-detail { display: none; }
+.preline { white-space: pre-line; line-height: 1.65; }
+.board-section { margin: 8px 0 28px; }
+.board-title-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+.board-title-row h2 { margin: 0; color: #153e90; }
+.board-simple-list { display: grid; gap: 12px; }
+.board-simple-card { background: #f4fff4; border: 1px solid #8fcd8f; border-radius: 16px; padding: 15px; box-shadow: 0 8px 20px rgba(30, 50, 90, .04); }
+.board-simple-head { display: flex; justify-content: space-between; gap: 14px; align-items: center; }
+.board-simple-summary strong { color: #176b3a; font-size: 18px; }
+.board-simple-meta { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+.board-simple-meta span { background: #ffffff; border: 1px solid #cfe8cf; border-radius: 999px; padding: 4px 9px; color: #43536a; font-size: 12px; font-weight: 800; }
+.board-simple-detail { background: #ffffff; border-radius: 12px; padding: 14px; margin-top: 14px; border: 1px solid #d7e2f2; }
+.board-simple-detail h3 { color: #153e90; margin: 14px 0 8px; }
+@media (max-width: 780px) { .period-list li { grid-template-columns: 30px 1fr; font-size: 18px; } .period-date, .period-desc { grid-column: 2; } .guide-top-example, .guide-grid, .toolbar { grid-template-columns: 1fr; } .period-card h2, .guide-title-row h2, .evaluation-card h2, .contact-card h2, .overview-card h2 { font-size: 25px; } .evaluation-card, .contact-card { padding: 18px; } .evaluation-section h3 { font-size: 21px; } .evaluation-section li, .award-summary { font-size: 17px; } .contact-row { grid-template-columns: 1fr; gap: 2px; font-size: 18px; } .attachment-preview { max-height: 280px; } .board-simple-head { flex-direction: column; align-items: flex-start; } .board-simple-head button { width: 100%; } }
 @media (max-width: 720px) { .topbar { flex-direction: column; align-items: flex-start; } .container { padding: 16px; } .hero h1 { font-size: 25px; } }
