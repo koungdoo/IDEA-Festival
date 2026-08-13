@@ -149,9 +149,43 @@
       <label>무엇이 문제인가? *<textarea id="content" rows="7" required></textarea></label>
       <label>해결 방안<textarea id="expected_effect" rows="4"></textarea></label>
       <label>아이디어가 구현되었을 때 예상되는 모습<textarea id="expected_appearance" rows="4"></textarea></label>
-      <label>첨부파일
-        <input id="attachment_files" type="file" multiple accept=".jpg,.jpeg,.png,.pdf,.ppt,.pptx,.xls,.xlsx,.doc,.docx">
+      <label>
+      첨부파일 1
+      <input 
+        type="file" 
+        id="attachment_1">
       </label>
+
+      <label>
+      첨부파일 2
+      <input
+        type="file"
+        id="attachment_2">
+      </label>
+
+      <label>
+      첨부파일 3
+      <input
+        type="file"
+        id="attachment_3">
+      </label>
+
+      <label>
+      첨부파일 4
+      <input
+        type="file"
+        id="attachment_4">
+      </label>
+
+      <label>
+      첨부파일 5
+      <input
+        type="file"
+        id="attachment_5">
+      </label>
+
+      <div id="selectedFileList"></div>
+
       <p class="muted small-note">첨부파일은 최대 5개까지 등록할 수 있습니다. 파일 1개당 권장 용량은 6MB 이하입니다.<br>개인정보, 고객사 자료, 도면, 견적서, 계약서 등 대외비 자료는 첨부하지 마세요.</p>
       <div id="selectedFileList" class="selected-file-list"></div>
       <button class="primary" onclick="submitIdea()">제출</button>
