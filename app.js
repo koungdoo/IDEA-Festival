@@ -230,12 +230,47 @@ async function submitIdea() {
 }
 
 async function loadLikeSummary() {
-  const { data, error } = await db.from("likes_summary").select("published_id, like_count");
+
+  const { data, error } =
+    await db
+      .from("likes")
+      .select("published_id");
+
   if (error) {
-    likeSummaryCache = new Map();
+
+    console.error(
+      "likes 조회 오류:",
+      error
+    );
+
+    likeSummaryCache =
+      new Map();
+
     return;
   }
-  likeSummaryCache = new Map((data || []).map((row) => [row.published_id, row.like_count]));
+
+  const counts = {};
+
+  (data || []).forEach(row => {
+
+    counts[row.published_id] =
+      (counts[row.published_id] || 0)
+      + 1;
+
+  });
+
+  likeSummaryCache =
+    new Map();
+
+  Object.keys(counts).forEach(key => {
+
+    likeSummaryCache.set(
+      Number(key),
+      counts[key]
+    );
+
+  });
+
 }
 
 async function loadBoard() {
