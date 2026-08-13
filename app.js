@@ -26,6 +26,7 @@ function initSupabase() {
   }
 
   db = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+  window.ideaFestivalDb = db;
   return true;
 }
 
@@ -52,32 +53,14 @@ function setMessage(id, text, type = "") {
 }
 
 function getSelectedFiles() {
-
   const files = [];
 
-  for (
-    let i = 1;
-    i <= 5;
-    i++
-  ) {
+  for (let i = 1; i <= 5; i++) {
+    const input = document.getElementById(`attachment_${i}`);
 
-    const input =
-      document.getElementById(
-        `attachment_${i}`
-      );
-
-    if (
-      input &&
-      input.files &&
-      input.files.length > 0
-    ) {
-
-      files.push(
-        input.files[0]
-      );
-
+    if (input && input.files && input.files.length > 0) {
+      files.push(input.files[0]);
     }
-
   }
 
   return files;
@@ -175,13 +158,15 @@ function renderSelectedFileList() {
     return;
   }
 
-  box.innerHTML = `
-    <div class="selected-files-box">
-      <strong>선택된 첨부파일: (${files.length}개)</strong>
-      <ul>
-        ${files.map(file) => `<li>${file.name} (${formatFileSize(file.size)})</li>`).join("")}
-      </ul>
+  const fileError = validateFiles(files);
 
+  box.innerHTML = `
+    <div class="selected-files-box ${fileError ? "file-error" : ""}">
+      <strong>선택된 첨부파일: ${files.length}개</strong>
+      <ul>
+        ${files.map((file) => `<li>${escapeHtml(file.name)} <span>${formatFileSize(file.size)}</span></li>`).join("")}
+      </ul>
+      ${fileError ? `<p class="message error">${escapeHtml(fileError)}</p>` : ""}
     </div>
   `;
 }
@@ -236,23 +221,9 @@ async function submitIdea() {
       if (el) el.value = "";
     });
 
-    for(
-      let i = 1;
-      i <= 5;
-      i++
-    ){
-
-      const input =
-        document.getElementById(
-          `attachment_${i}`
-        );
-
-      if(input){
-
-        input.value = "";
-
-      }
-
+    for (let i = 1; i <= 5; i++) {
+      const input = document.getElementById(`attachment_${i}`);
+      if (input) input.value = "";
     }
 
     const selectedFileList = document.getElementById("selectedFileList");
@@ -270,47 +241,31 @@ async function submitIdea() {
 }
 
 async function loadLikeSummary() {
+  if (!db && !initSupabase()) return;
 
-  const { data, error } =
-    await db
-      .from("likes")
-      .select("published_id");
+  const { data, error } = await db
+    .from("likes")
+    .select("published_id");
 
   if (error) {
-
-    console.error(
-      "likes 조회 오류:",
-      error
-    );
-
-    likeSummaryCache =
-      new Map();
-
+    console.error("likes 조회 오류:", error);
+    likeSummaryCache = new Map();
     return;
   }
 
   const counts = {};
 
-  (data || []).forEach(row => {
-
-    counts[row.published_id] =
-      (counts[row.published_id] || 0)
-      + 1;
-
+  (data || []).forEach((row) => {
+    counts[row.published_id] = (counts[row.published_id] || 0) + 1;
   });
 
-  likeSummaryCache =
-    new Map();
+  likeSummaryCache = new Map();
 
-  Object.keys(counts).forEach(key => {
-
-    likeSummaryCache.set(
-      Number(key),
-      counts[key]
-    );
-
+  Object.keys(counts).forEach((key) => {
+    likeSummaryCache.set(Number(key), counts[key]);
   });
 
+  window.likeSummaryCache = likeSummaryCache;
 }
 
 async function loadBoard() {
@@ -333,6 +288,8 @@ async function loadBoard() {
     ...idea,
     like_count: likeSummaryCache.get(Number(idea.id)) || 0
   }));
+
+  window.publishedCache = publishedCache;
 
   renderBoard();
 }
@@ -484,7 +441,7 @@ async function loadRanking() {
   }
 
   const rows = (ideas || [])
-    .map((idea) => ({ ...idea, like_count: likeSummaryCache.get(idea.id) || 0 }))
+    .map((idea) => ({ ...idea, like_count: likeSummaryCache.get(Number(idea.id)) || 0 }))
     .sort((a, b) => b.like_count - a.like_count || new Date(b.published_at) - new Date(a.published_at));
 
   document.getElementById("rankList").innerHTML = rows.map((idea, index) => `
@@ -562,24 +519,12 @@ function escapeAttr(str) {
 
 document.addEventListener("DOMContentLoaded", () => {
   initSupabase();
-  const fileInput = for(
-  let i = 1;
-  i <= 5;
-  i++
-){
 
-  const input =
-    document.getElementById(
-      `attachment_${i}`
-    );
+  for (let i = 1; i <= 5; i++) {
+    const input = document.getElementById(`attachment_${i}`);
 
-  if(input){
-
-    input.addEventListener(
-      "change",
-      renderSelectedFileList
-    );
-
+    if (input) {
+      input.addEventListener("change", renderSelectedFileList);
+    }
   }
-
-}
+});
