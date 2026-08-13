@@ -291,7 +291,7 @@ async function loadBoard() {
 
   publishedCache = (ideas || []).map((idea) => ({
     ...idea,
-    like_count: likeSummaryCache.get(idea.id) || 0
+    like_count: likeSummaryCache.get(Number(idea.id)) || 0
   }));
 
   renderBoard();
