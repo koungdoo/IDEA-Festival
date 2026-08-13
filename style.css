@@ -91,3 +91,27 @@ footer { text-align: center; color: #8a94a6; padding: 28px; }
 .board-simple-detail h3 { color: #153e90; margin: 14px 0 8px; }
 @media (max-width: 780px) { .period-list li { grid-template-columns: 30px 1fr; font-size: 18px; } .period-date, .period-desc { grid-column: 2; } .guide-top-example, .guide-grid, .toolbar { grid-template-columns: 1fr; } .period-card h2, .guide-title-row h2, .evaluation-card h2, .contact-card h2, .overview-card h2 { font-size: 25px; } .evaluation-card, .contact-card { padding: 18px; } .evaluation-section h3 { font-size: 21px; } .evaluation-section li, .award-summary { font-size: 17px; } .contact-row { grid-template-columns: 1fr; gap: 2px; font-size: 18px; } .attachment-preview { max-height: 280px; } .board-simple-head { flex-direction: column; align-items: flex-start; } .board-simple-head button { width: 100%; } }
 @media (max-width: 720px) { .topbar { flex-direction: column; align-items: flex-start; } .container { padding: 16px; } .hero h1 { font-size: 25px; } }
+/* LocalStorage 열람 표시 및 Hash 공감 UI */
+.view-new {
+  background: #fff3cd !important;
+  border-color: #ffe69c !important;
+  color: #8a5a00 !important;
+}
+
+.view-read {
+  background: #eef7ee !important;
+  border-color: #cfe8cf !important;
+  color: #176b3a !important;
+}
+
+.like-action-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.attachment-input-group {
+  display: grid;
+  gap: 6px;
+}
