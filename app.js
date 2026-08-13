@@ -1,6 +1,37 @@
 let db = null;
 let publishedCache = [];
 
+const RAW_STORAGE_BUCKET = "idea-raw-files";
+const PUBLISHED_STORAGE_BUCKET = "idea-published-files";
+
+const MAX_FILE_COUNT = 5;
+const MAX_FILE_SIZE = 6 * 1024 * 1024; // 6MB
+
+const ALLOWED_EXTENSIONS = [
+  "jpg",
+  "jpeg",
+  "png",
+  "pdf",
+  "ppt",
+  "pptx",
+  "xls",
+  "xlsx",
+  "doc",
+  "docx"
+];
+
+const ALLOWED_FILE_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "application/pdf",
+  "application/vnd.ms-powerpoint",
+  "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+  "application/vnd.ms-excel",
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+];
+
 function initSupabase() {
   if (
     !window.SUPABASE_URL ||
