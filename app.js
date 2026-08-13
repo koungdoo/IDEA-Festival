@@ -562,6 +562,5 @@ function escapeAttr(str) {
 
 document.addEventListener("DOMContentLoaded", () => {
   initSupabase();
-  const fileInput = document.getElementById("attachment_files");
-  if (fileInput) fileInput.addEventListener("change", renderSelectedFileList);
+  const fileInput = document.getElementById("attachment_files").addEventListener("change", renderSelectedFileList);
 });
