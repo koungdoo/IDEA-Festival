@@ -52,9 +52,35 @@ function setMessage(id, text, type = "") {
 }
 
 function getSelectedFiles() {
-  const input = document.getElementById("attachment_files");
-  if (!input || !input.files || input.files.length === 0) return [];
-  return Array.from(input.files);
+
+  const files = [];
+
+  for (
+    let i = 1;
+    i <= 5;
+    i++
+  ) {
+
+    const input =
+      document.getElementById(
+        `attachment_${i}`
+      );
+
+    if (
+      input &&
+      input.files &&
+      input.files.length > 0
+    ) {
+
+      files.push(
+        input.files[0]
+      );
+
+    }
+
+  }
+
+  return files;
 }
 
 function getFileExtension(fileName) {
