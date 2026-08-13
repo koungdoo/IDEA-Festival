@@ -248,11 +248,18 @@ async function submitIdea() {
     return;
   }
 
+  const submitterName = value("submitter_name");
+  const employeeNo = value("employee_no");
+  const department = value("department");
   const title = value("title");
   const content = value("content");
+  const expectedEffect = value("expected_effect");
+  const expectedAppearance = value("expected_appearance");
 
-  if (!title || !content) {
-    setMessage("submitMsg", "아이디어명과 무엇이 문제인가? 항목은 필수입니다.", "error");
+  if (!submitterName || !employeeNo || !department || !title || !content || !expectedEffect || !expectedAppearance) 
+  {
+
+  setMessage("submitMsg", "종류를 제외한 모든 항목은 필수 입력입니다.", "error");
     return;
   }
 
