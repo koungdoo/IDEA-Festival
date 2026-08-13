@@ -141,14 +141,14 @@
     <div class="card narrow">
       <h1>아이디어 접수</h1>
       <p class="muted">입력한 원본 정보는 관리자 익명화 전용으로 사용됩니다.</p>
-      <label>성명<input id="submitter_name" placeholder="홍길동"></label>
-      <label>사번<input id="employee_no" placeholder="12345"></label>
-      <label>부서<input id="department" placeholder="생산기술팀"></label>
-      <label>아이디어명 *<input id="title" required></label>
+      <label>성명<input id="submitter_name" placeholder="홍길동" required></label>
+      <label>사번<input id="employee_no" placeholder="12345" required></label>
+      <label>부서<input id="department" placeholder="생산기술팀" required></label>
+      <label>아이디어명 *<input id="title" required required></label>
       <label>종류<select id="category"><option>LEVEL1</option><option>LEVEL2</option><option>LEVEL3</option></select></label>
       <label>무엇이 문제인가? *<textarea id="content" rows="7" required></textarea></label>
-      <label>해결 방안<textarea id="expected_effect" rows="4"></textarea></label>
-      <label>아이디어가 구현되었을 때 예상되는 모습<textarea id="expected_appearance" rows="4"></textarea></label>
+      <label>해결 방안<textarea id="expected_effect" rows="4" required></textarea></label>
+      <label>아이디어가 구현되었을 때 예상되는 모습<textarea id="expected_appearance" rows="4" required></textarea></label>
 
       <div class="attachment-input-group">
         <label>첨부파일 1<input id="attachment_1" type="file" accept=".jpg,.jpeg,.png,.pdf,.ppt,.pptx,.xls,.xlsx,.doc,.docx"></label>
