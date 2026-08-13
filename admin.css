@@ -1,0 +1,26 @@
+body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans KR", Arial, sans-serif; background: #f5f7fb; color: #172033; }
+.admin-topbar { background: #153e90; color: #fff; padding: 24px; display: flex; justify-content: space-between; gap: 16px; align-items: center; }
+.admin-topbar h1 { margin: 0 0 6px; }
+.admin-topbar p { margin: 0; opacity: .9; }
+.admin-topbar a { color: #172033; background: #ffcc33; padding: 10px 14px; border-radius: 12px; font-weight: 900; text-decoration: none; }
+.admin-container { max-width: 1080px; margin: auto; padding: 24px; }
+.admin-card, .raw-card { background: #fff; border: 1px solid #d7e2f2; border-radius: 18px; padding: 20px; margin: 16px 0; box-shadow: 0 8px 20px rgba(30, 50, 90, .06); }
+.hidden { display: none; }
+label { display: block; font-weight: 800; margin: 12px 0; }
+input, textarea, select { width: 100%; padding: 11px; border: 1px solid #cfd6e4; border-radius: 12px; margin-top: 7px; font: inherit; }
+button { border: 0; border-radius: 12px; padding: 10px 14px; background: #e9eef8; color: #17345f; font-weight: 800; cursor: pointer; }
+.primary { background: #ffcc33; color: #172033; }
+.admin-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+.raw-head { display: flex; justify-content: space-between; gap: 12px; align-items: center; margin-bottom: 10px; }
+.status { display: inline-block; margin-left: 8px; background: #eef4ff; color: #153e90; border-radius: 999px; padding: 4px 10px; font-size: 12px; font-weight: 900; }
+.submitter { display: flex; gap: 10px; flex-wrap: wrap; color: #667085; margin-bottom: 10px; }
+.file-section { background: #fbfdff; border: 1px solid #d7e2f2; border-radius: 14px; padding: 14px; margin: 14px 0; }
+.file-section h3 { margin: 0 0 10px; color: #153e90; }
+.file-list { display: grid; gap: 8px; }
+.file-link { display: inline-block; padding: 10px 12px; background: #eef4ff; border-radius: 12px; color: #153e90; text-decoration: none; font-weight: 900; word-break: break-all; }
+.button-row { display: flex; gap: 10px; flex-wrap: wrap; }
+.message { font-weight: 800; margin-top: 10px; }
+.message.success { color: #176b3a; }
+.message.error, .error { color: #a11616; }
+.muted { color: #667085; }
+@media (max-width: 720px) { .admin-topbar { flex-direction: column; align-items: flex-start; } .admin-container { padding: 16px; } .raw-head { flex-direction: column; align-items: flex-start; } }
