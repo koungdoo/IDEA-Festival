@@ -26,7 +26,7 @@ const ALLOWED_FILE_TYPES = [
 ========================================================= */
 const SCHEDULE_CONTROL_ENABLED = true;
 
-const SUBMISSION_START = new Date("2026-08-24T00:00:00+09:00");
+const SUBMISSION_START = new Date("2026-08-12T00:00:00+09:00");
 const SUBMISSION_END = new Date("2026-09-11T23:59:59+09:00");
 
 const LIKE_START = new Date("2026-08-24T00:00:00+09:00");
