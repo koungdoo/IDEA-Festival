@@ -175,15 +175,13 @@ function renderSelectedFileList() {
     return;
   }
 
-  const fileError = validateFiles(files);
-
   box.innerHTML = `
-    <div class="selected-files-box ${fileError ? "file-error" : ""}">
-      <strong>선택된 첨부파일: ${files.length}개</strong>
+    <div class="selected-files-box">
+      <strong>선택된 첨부파일: (${files.length}개)</strong>
       <ul>
-        ${files.map((file) => `<li>${escapeHtml(file.name)} <span>${formatFileSize(file.size)}</span></li>`).join("")}
+        ${files.map(file) => `<li>${file.name} (${formatFileSize(file.size)})</li>`).join("")}
       </ul>
-      ${fileError ? `<p class="message error">${escapeHtml(fileError)}</p>` : ""}
+
     </div>
   `;
 }
