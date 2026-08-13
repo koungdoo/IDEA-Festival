@@ -36,7 +36,7 @@ input[type="file"] { background: #ffffff; }
 footer { text-align: center; color: #8a94a6; padding: 28px; }
 .period-card h2, .guide-title-row h2, .overview-card h2, .evaluation-card h2, .contact-card h2 { margin: 0 0 14px; font-size: 30px; color: #153e90; }
 .period-list { counter-reset: item; list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
-.period-list li { display: grid; grid-template-columns: 34px 150px 1fr; gap: 8px; align-items: start; font-size: 20px; line-height: 1.45; }
+.period-list li { display: grid; grid-template-columns: 34px 240px 1fr; gap: 8px; align-items: start; font-size: 20px; line-height: 1.45; }
 .period-list li::before { content: counter(item) ")"; counter-increment: item; font-weight: 800; color: #111827; }
 .period-date { font-weight: 800; color: #111827; white-space: nowrap; }
 .period-list li.active .period-date, .period-list li.active .period-desc { color: #003bff; font-weight: 900; }
