@@ -18,6 +18,16 @@
   align-items: center;
 }
 
+.like-user-status {
+  background: #eef7ee;
+  border: 1px solid #cfe8cf;
+  border-radius: 12px;
+  color: #176b3a;
+  font-weight: 800;
+  padding: 10px 12px;
+  margin: 10px 0;
+}
+
 .attachment-input-group {
   display: grid;
   gap: 6px;
