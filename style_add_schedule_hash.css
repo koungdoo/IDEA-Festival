@@ -1,0 +1,50 @@
+/* 일정 제어, LocalStorage 열람 표시 및 Hash 공감 UI */
+.view-new {
+  background: #fff3cd !important;
+  border-color: #ffe69c !important;
+  color: #8a5a00 !important;
+}
+
+.view-read {
+  background: #eef7ee !important;
+  border-color: #cfe8cf !important;
+  color: #176b3a !important;
+}
+
+.like-action-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.like-user-status {
+  background: #eef7ee;
+  border: 1px solid #cfe8cf;
+  border-radius: 12px;
+  color: #176b3a;
+  font-weight: 800;
+  padding: 10px 12px;
+  margin: 10px 0;
+}
+
+.like-user-status.like-closed {
+  background: #fff7f7;
+  border-color: #f3c0c0;
+  color: #a11616;
+}
+
+.schedule-info-box {
+  background: #eef4ff;
+  border: 1px solid #d7e2f2;
+  border-radius: 14px;
+  color: #153e90;
+  padding: 12px 14px;
+  margin: 0 0 14px;
+  font-weight: 800;
+}
+
+.attachment-input-group {
+  display: grid;
+  gap: 6px;
+}

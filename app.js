@@ -19,6 +19,19 @@ const ALLOWED_FILE_TYPES = [
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
 ];
 
+/* =========================================================
+   운영 일정 설정
+   - 날짜만 바꾸면 아이디어 접수 기간과 공감 기간을 따로 제어할 수 있습니다.
+   - 테스트 중에는 시작일을 현재 날짜보다 이전으로 설정하세요.
+========================================================= */
+const SCHEDULE_CONTROL_ENABLED = true;
+
+const SUBMISSION_START = new Date("2026-08-24T00:00:00+09:00");
+const SUBMISSION_END = new Date("2026-09-11T23:59:59+09:00");
+
+const LIKE_START = new Date("2026-08-24T00:00:00+09:00");
+const LIKE_END = new Date("2026-09-11T23:59:59+09:00");
+
 const VIEWED_IDEAS_KEY = "ideaFestivalViewedIdeas";
 const USER_HASH_KEY = "ideaFestivalUserHash";
 const HASH_NAMESPACE = "ALPS_KOREA_IDEA_FESTIVAL_2026_V1";
@@ -34,10 +47,43 @@ function initSupabase() {
   return true;
 }
 
+function isNowBetween(startDate, endDate) {
+  if (!SCHEDULE_CONTROL_ENABLED) return true;
+  const now = new Date();
+  return now >= startDate && now <= endDate;
+}
+
+function isSubmissionOpen() {
+  return isNowBetween(SUBMISSION_START, SUBMISSION_END);
+}
+
+function isLikeOpen() {
+  return isNowBetween(LIKE_START, LIKE_END);
+}
+
+function formatScheduleDate(date) {
+  return date.toLocaleString("ko-KR", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+}
+
+function getSubmissionPeriodText() {
+  return `${formatScheduleDate(SUBMISSION_START)} ~ ${formatScheduleDate(SUBMISSION_END)}`;
+}
+
+function getLikePeriodText() {
+  return `${formatScheduleDate(LIKE_START)} ~ ${formatScheduleDate(LIKE_END)}`;
+}
+
 function showPage(id) {
   document.querySelectorAll(".page").forEach((page) => page.classList.remove("active"));
   document.getElementById(id).classList.add("active");
 
+  if (id === "submit") updateSubmissionUi();
   if (id === "board") loadBoard();
   if (id === "ranking") loadRanking();
 
@@ -54,6 +100,25 @@ function setMessage(id, text, type = "") {
   if (!el) return;
   el.textContent = text;
   el.className = "message " + type;
+}
+
+function updateSubmissionUi() {
+  const submitButton = document.querySelector("#submit button.primary");
+  const msg = document.getElementById("submitMsg");
+
+  if (!submitButton) return;
+
+  if (isSubmissionOpen()) {
+    submitButton.disabled = false;
+    submitButton.textContent = "제출";
+    if (msg && !msg.textContent) {
+      setMessage("submitMsg", `아이디어 접수 가능 기간입니다. 접수 기간: ${getSubmissionPeriodText()}`, "success");
+    }
+  } else {
+    submitButton.disabled = true;
+    submitButton.textContent = "접수 기간 아님";
+    setMessage("submitMsg", `아이디어 접수 기간이 아닙니다. 접수 기간: ${getSubmissionPeriodText()}`, "error");
+  }
 }
 
 function getSelectedFiles() {
@@ -177,6 +242,12 @@ function renderSelectedFileList() {
 async function submitIdea() {
   if (!db && !initSupabase()) return;
 
+  if (!isSubmissionOpen()) {
+    setMessage("submitMsg", `아이디어 접수 기간이 아닙니다. 접수 기간: ${getSubmissionPeriodText()}`, "error");
+    updateSubmissionUi();
+    return;
+  }
+
   const title = value("title");
   const content = value("content");
 
@@ -240,6 +311,7 @@ async function submitIdea() {
       submitButton.disabled = false;
       submitButton.textContent = "제출";
     }
+    updateSubmissionUi();
   }
 }
 
@@ -386,6 +458,9 @@ function renderBoard() {
         <h2>게시된 아이디어 (${filtered.length})</h2>
         <button class="small-button" onclick="toggleAllBoardDetails()">전체 접기/펼치기</button>
       </div>
+      <div class="schedule-info-box">
+        <strong>공감 가능 기간</strong> ${getLikePeriodText()}
+      </div>
       <div class="board-simple-list">
         ${filtered.length ? filtered.map(renderBoardSimpleCard).join("") : '<div class="card">게시된 아이디어가 없습니다.</div>'}
       </div>
@@ -400,15 +475,26 @@ function renderBoardSimpleCard(idea) {
   const viewLabel = viewed ? "✅ 읽음" : "🆕 NEW";
   const viewClass = viewed ? "view-read" : "view-new";
   const userHash = getStoredUserHash();
+  const likeOpen = isLikeOpen();
 
-  const likeAreaHtml = userHash
-    ? `
+  let likeAreaHtml = "";
+
+  if (!likeOpen) {
+    likeAreaHtml = `
+      <div class="like-user-status like-closed">공감 가능 기간이 아닙니다.</div>
+      <div class="like-action-row">
+        <button class="primary" disabled>공감 종료</button>
+      </div>
+    `;
+  } else if (userHash) {
+    likeAreaHtml = `
       <div class="like-user-status">등록된 사용자 기준으로 공감합니다.</div>
       <div class="like-action-row">
         <button class="primary" onclick="likeIdea(${idea.id})">공감하기</button>
       </div>
-    `
-    : `
+    `;
+  } else {
+    likeAreaHtml = `
       <label>사번 입력
         <input id="likeEmp-${idea.id}" placeholder="최초 1회 사번 입력">
       </label>
@@ -416,6 +502,7 @@ function renderBoardSimpleCard(idea) {
         <button class="primary" onclick="likeIdea(${idea.id})">등록 및 공감하기</button>
       </div>
     `;
+  }
 
   return `
     <article class="board-simple-card" id="board-card-${idea.id}">
@@ -487,6 +574,12 @@ async function likeIdea(id) {
   if (!db && !initSupabase()) return;
 
   const msgId = document.getElementById(`likeMsg-${id}`) ? `likeMsg-${id}` : "likeMsg";
+
+  if (!isLikeOpen()) {
+    setMessage(msgId, `공감 가능한 기간이 아닙니다. 공감 기간: ${getLikePeriodText()}`, "error");
+    return;
+  }
+
   const existingHash = getStoredUserHash();
   const inputValue = value(`likeEmp-${id}`) || value("likeEmp");
 
@@ -606,4 +699,5 @@ document.addEventListener("DOMContentLoaded", () => {
     const input = document.getElementById(`attachment_${i}`);
     if (input) input.addEventListener("change", renderSelectedFileList);
   }
+  updateSubmissionUi();
 });
