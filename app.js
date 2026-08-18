@@ -35,6 +35,8 @@ const LIKE_END = new Date("2026-08-19T23:59:59+09:00");
 const VIEWED_IDEAS_KEY = "ideaFestivalViewedIdeas";
 const USER_HASH_KEY = "ideaFestivalUserHash";
 const HASH_NAMESPACE = "ALPS_KOREA_IDEA_FESTIVAL_2026_V1";
+const EMPLOYEE_NO_KEY = "ideaFestivalEmployeeNo";
+const EMPLOYEE_VERIFIED_KEY = "ideaFestivalEmployeeVerified";
 
 function initSupabase() {
   if (!window.SUPABASE_URL || !window.SUPABASE_ANON_KEY || window.SUPABASE_URL.includes("YOUR_PROJECT_ID")) {
