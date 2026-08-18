@@ -8,6 +8,28 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
+
+<div id="loginOverlay" class="login-overlay">
+  <div class="login-box">
+      <h2>아이디어 페스티벌</h2>
+
+      <p>사번을 입력해 주세요.</p>
+
+      <input
+          type="text"
+          id="empNoLogin"
+          placeholder="사번 입력">
+
+      <button onclick="verifyEmployee()">
+          입장하기
+      </button>
+
+      <p id="loginMessage"></p>
+  </div>
+</div>
+
+<div id="siteContent" style="display:none;">
+``
 <header class="topbar">
   <div class="brand">아이디어 페스티벌</div>
   <nav>
@@ -194,6 +216,7 @@
   <section id="ranking" class="page"><h1>공감 순위</h1><div id="rankList" class="card"></div></section>
 </main>
 <footer>아이디어 페스티벌</footer>
+</div>
 <script src="config.sample.js"></script>
 <script src="app.js"></script>
 </body>
