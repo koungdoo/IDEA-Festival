@@ -49,6 +49,94 @@ function initSupabase() {
   return true;
 }
 
+function getLoggedInEmployeeNo() {
+  return localStorage.getItem(EMPLOYEE_NO_KEY) || "";
+}
+
+function isEmployeeVerified() {
+  return localStorage.getItem(EMPLOYEE_VERIFIED_KEY) === "true";
+}
+
+function setLoginMessage(text, type = "") {
+  const msg = document.getElementById("loginMessage");
+  if (!msg) return;
+  msg.textContent = text;
+  msg.className = type ? `message ${type}` : "";
+}
+
+function fillEmployeeNoOnSubmitForm() {
+  const employeeNo = getLoggedInEmployeeNo();
+  const employeeInput = document.getElementById("employee_no");
+  if (employeeInput && employeeNo) {
+    employeeInput.value = employeeNo;
+    employeeInput.readOnly = true;
+  }
+}
+
+function showSiteContent() {
+  const loginOverlay = document.getElementById("loginOverlay");
+  const siteContent = document.getElementById("siteContent");
+
+  if (loginOverlay) loginOverlay.style.display = "none";
+  if (siteContent) siteContent.style.display = "block";
+
+  fillEmployeeNoOnSubmitForm();
+}
+
+function showLoginOverlay() {
+  const loginOverlay = document.getElementById("loginOverlay");
+  const siteContent = document.getElementById("siteContent");
+
+  if (loginOverlay) loginOverlay.style.display = "flex";
+  if (siteContent) siteContent.style.display = "none";
+}
+
+function logoutEmployee() {
+  localStorage.removeItem(EMPLOYEE_NO_KEY);
+  localStorage.removeItem(EMPLOYEE_VERIFIED_KEY);
+  localStorage.removeItem(USER_HASH_KEY);
+  showLoginOverlay();
+}
+
+async function verifyEmployee() {
+  if (!db && !initSupabase()) return;
+
+  const empInput = document.getElementById("empNoLogin");
+  const empNo = empInput ? empInput.value.trim() : "";
+
+  if (!empNo) {
+    setLoginMessage("사번을 입력해 주세요.", "error");
+    return;
+  }
+
+  setLoginMessage("사번을 확인하고 있습니다.");
+
+  const { data, error } = await db.rpc("verify_employee", {
+    input_emp_no: empNo
+  });
+
+  if (error) {
+    console.error("사번 인증 오류:", error);
+    setLoginMessage("사번 확인 중 오류가 발생했습니다. 관리자에게 문의해 주세요.", "error");
+    return;
+  }
+
+  if (!data) {
+    setLoginMessage("등록되지 않은 사번입니다.", "error");
+    return;
+  }
+
+  localStorage.setItem(EMPLOYEE_NO_KEY, empNo);
+  localStorage.setItem(EMPLOYEE_VERIFIED_KEY, "true");
+
+  const userHash = await hashEmployeeNo(empNo);
+  setStoredUserHash(userHash);
+
+  setLoginMessage("");
+  showSiteContent();
+  updateSubmissionUi();
+}
+
 function isNowBetween(startDate, endDate) {
   if (!SCHEDULE_CONTROL_ENABLED) return true;
   const now = new Date();
@@ -82,10 +170,19 @@ function getLikePeriodText() {
 }
 
 function showPage(id) {
-  document.querySelectorAll(".page").forEach((page) => page.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
+  if (!isEmployeeVerified()) {
+    showLoginOverlay();
+    return;
+  }
 
-  if (id === "submit") updateSubmissionUi();
+  document.querySelectorAll(".page").forEach((page) => page.classList.remove("active"));
+  const target = document.getElementById(id);
+  if (target) target.classList.add("active");
+
+  if (id === "submit") {
+    fillEmployeeNoOnSubmitForm();
+    updateSubmissionUi();
+  }
   if (id === "board") loadBoard();
   if (id === "ranking") loadRanking();
 
@@ -109,6 +206,8 @@ function updateSubmissionUi() {
   const msg = document.getElementById("submitMsg");
 
   if (!submitButton) return;
+
+  fillEmployeeNoOnSubmitForm();
 
   if (isSubmissionOpen()) {
     submitButton.disabled = false;
@@ -244,24 +343,30 @@ function renderSelectedFileList() {
 async function submitIdea() {
   if (!db && !initSupabase()) return;
 
+  if (!isEmployeeVerified()) {
+    setMessage("submitMsg", "사번 인증 후 아이디어를 제출할 수 있습니다.", "error");
+    showLoginOverlay();
+    return;
+  }
+
   if (!isSubmissionOpen()) {
     setMessage("submitMsg", `아이디어 접수 기간이 아닙니다. 접수 기간: ${getSubmissionPeriodText()}`, "error");
     updateSubmissionUi();
     return;
   }
 
+  fillEmployeeNoOnSubmitForm();
+
   const submitterName = value("submitter_name");
-  const employeeNo = value("employee_no");
+  const employeeNo = getLoggedInEmployeeNo() || value("employee_no");
   const department = value("department");
   const title = value("title");
   const content = value("content");
   const expectedEffect = value("expected_effect");
   const expectedAppearance = value("expected_appearance");
 
-  if (!submitterName || !employeeNo || !department || !title || !content || !expectedEffect || !expectedAppearance) 
-  {
-
-  setMessage("submitMsg", "종류를 제외한 모든 항목은 필수 입력입니다.", "error");
+  if (!submitterName || !employeeNo || !department || !title || !content || !expectedEffect || !expectedAppearance) {
+    setMessage("submitMsg", "종류를 제외한 모든 항목은 필수 입력입니다.", "error");
     return;
   }
 
@@ -284,14 +389,14 @@ async function submitIdea() {
     const attachmentFiles = await uploadRawAttachments(files);
 
     const payload = {
-      submitter_name: value("submitter_name"),
-      employee_no: value("employee_no"),
-      department: value("department"),
+      submitter_name: submitterName,
+      employee_no: employeeNo,
+      department,
       category: value("category") || "LEVEL1",
       title,
       content,
-      expected_effect: value("expected_effect"),
-      expected_appearance: value("expected_appearance"),
+      expected_effect: expectedEffect,
+      expected_appearance: expectedAppearance,
       attachment_files: attachmentFiles
     };
 
@@ -299,10 +404,12 @@ async function submitIdea() {
 
     if (error) throw new Error("아이디어 저장 오류: " + error.message);
 
-    ["submitter_name", "employee_no", "department", "title", "content", "expected_effect", "expected_appearance"].forEach((id) => {
+    ["submitter_name", "department", "title", "content", "expected_effect", "expected_appearance"].forEach((id) => {
       const el = document.getElementById(id);
       if (el) el.value = "";
     });
+
+    fillEmployeeNoOnSubmitForm();
 
     for (let i = 1; i <= 5; i++) {
       const input = document.getElementById(`attachment_${i}`);
@@ -348,18 +455,6 @@ function getStoredUserHash() {
 
 function setStoredUserHash(userHash) {
   if (userHash) localStorage.setItem(USER_HASH_KEY, userHash);
-}
-
-async function getUserHashForLike(ideaId) {
-  const existingHash = getStoredUserHash();
-  if (existingHash) return existingHash;
-
-  const inputValue = value(`likeEmp-${ideaId}`) || value("likeEmp");
-  if (!inputValue) return "";
-
-  const userHash = await hashEmployeeNo(inputValue);
-  setStoredUserHash(userHash);
-  return userHash;
 }
 
 function getViewedIdeaIds() {
@@ -483,8 +578,8 @@ function renderBoardSimpleCard(idea) {
   const viewed = isIdeaViewed(idea.id);
   const viewLabel = viewed ? "✅ 읽음" : "🆕 NEW";
   const viewClass = viewed ? "view-read" : "view-new";
-  const userHash = getStoredUserHash();
   const likeOpen = isLikeOpen();
+  const employeeNo = getLoggedInEmployeeNo();
 
   let likeAreaHtml = "";
 
@@ -495,20 +590,18 @@ function renderBoardSimpleCard(idea) {
         <button class="primary" disabled>공감 종료</button>
       </div>
     `;
-  } else if (userHash) {
+  } else if (employeeNo && isEmployeeVerified()) {
     likeAreaHtml = `
-      <div class="like-user-status">등록된 사용자 기준으로 공감합니다.</div>
+      <div class="like-user-status">사번 인증이 완료된 사용자 기준으로 공감합니다.</div>
       <div class="like-action-row">
         <button class="primary" onclick="likeIdea(${idea.id})">공감하기</button>
       </div>
     `;
   } else {
     likeAreaHtml = `
-      <label>사번 입력
-        <input id="likeEmp-${idea.id}" placeholder="최초 1회 사번 입력">
-      </label>
+      <div class="like-user-status like-closed">사번 인증 후 공감할 수 있습니다.</div>
       <div class="like-action-row">
-        <button class="primary" onclick="likeIdea(${idea.id})">등록 및 공감하기</button>
+        <button class="primary" onclick="showLoginOverlay()">사번 인증하기</button>
       </div>
     `;
   }
@@ -539,7 +632,7 @@ function renderBoardSimpleCard(idea) {
         ${renderPublishedAttachments(idea)}
         <div class="likebox simple-likebox">
           <div class="likecount">♥ ${idea.like_count}</div>
-          <p class="muted small-note">사번은 브라우저에서 해시 처리된 값으로 저장됩니다. 원본 사번은 DB에 저장하지 않습니다.</p>
+          <p class="muted small-note">공감 기록은 사번을 해시 처리한 값으로 저장됩니다.</p>
           ${likeAreaHtml}
           <p id="likeMsg-${idea.id}" class="message"></p>
         </div>
@@ -589,19 +682,16 @@ async function likeIdea(id) {
     return;
   }
 
-  const existingHash = getStoredUserHash();
-  const inputValue = value(`likeEmp-${id}`) || value("likeEmp");
+  const employeeNo = getLoggedInEmployeeNo();
 
-  if (!existingHash && !inputValue) {
-    setMessage(msgId, "최초 공감 시 사번을 입력해 주세요. 사번은 해시 처리되어 저장됩니다.", "error");
+  if (!isEmployeeVerified() || !employeeNo) {
+    setMessage(msgId, "사번 인증 후 공감할 수 있습니다.", "error");
+    showLoginOverlay();
     return;
   }
 
-  const userHash = await getUserHashForLike(id);
-  if (!userHash) {
-    setMessage(msgId, "사번 해시 처리 중 오류가 발생했습니다.", "error");
-    return;
-  }
+  const userHash = await hashEmployeeNo(employeeNo);
+  setStoredUserHash(userHash);
 
   const { error } = await db.from("likes").insert({
     published_id: id,
@@ -617,7 +707,7 @@ async function likeIdea(id) {
     return;
   }
 
-  setMessage(msgId, "공감이 등록되었습니다. 다음 공감부터 사번 입력 없이 사용할 수 있습니다.", "success");
+  setMessage(msgId, "공감이 등록되었습니다.", "success");
   await loadBoard();
   const detail = document.getElementById(`board-detail-${id}`);
   if (detail) detail.classList.remove("hidden-detail");
@@ -704,9 +794,24 @@ function escapeAttr(str) {
 
 document.addEventListener("DOMContentLoaded", () => {
   initSupabase();
+
+  const empNoLogin = document.getElementById("empNoLogin");
+  if (empNoLogin) {
+    empNoLogin.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") verifyEmployee();
+    });
+  }
+
+  if (isEmployeeVerified() && getLoggedInEmployeeNo()) {
+    showSiteContent();
+  } else {
+    showLoginOverlay();
+  }
+
   for (let i = 1; i <= 5; i++) {
     const input = document.getElementById(`attachment_${i}`);
     if (input) input.addEventListener("change", renderSelectedFileList);
   }
+
   updateSubmissionUi();
 });
